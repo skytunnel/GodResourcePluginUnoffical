@@ -6,7 +6,7 @@
 	
 	"sourceUrl": "https://raw.githubusercontent.com/skytunnel/GodResourcePluginUnoffical/main/config.js",
 	"repositoryUrl": "https://github.com/skytunnel/GodResourcePluginUnoffical",
-	"scriptUrl": "./SomeScript.js",
+	"scriptUrl": "https://raw.githubusercontent.com/skytunnel/GodResourcePluginUnoffical/main/script.js",
 	"version": 1,
 	
 	"iconUrl": "https://www.godresource.com/Images/Logos/GRLogo.jpg",
