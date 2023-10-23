@@ -4,7 +4,7 @@
 	"author": "Stuart Houston",
 	"authorUrl": "https://new.godresource.com/video",
 	
-	"sourceUrl": "https://yoursite.com/SomeConfig.json",
+	"sourceUrl": "https://raw.githubusercontent.com/skytunnel/GodResourcePluginUnoffical/main/config.js",
 	"repositoryUrl": "https://github.com/skytunnel/GodResourcePluginUnoffical",
 	"scriptUrl": "./SomeScript.js",
 	"version": 1,
