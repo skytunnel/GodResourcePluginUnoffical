@@ -27,23 +27,23 @@ source.searchSuggestions = function(query) {
 
 source.getSearchCapabilities = function() {
     //This is an example of how to return search capabilities like available sorts, filters and which feed types are available (see source.js for more details) 
-	return {
-		types: [Type.Feed.Mixed],
-		sorts: [Type.Order.Chronological, "^release_time"],
-		filters: [
-			{
-				id: "date",
-				name: "Date",
-				isMultiSelect: false,
-				filters: [
-					{ id: Type.Date.Today, name: "Last 24 hours", value: "today" },
-					{ id: Type.Date.LastWeek, name: "Last week", value: "thisweek" },
-					{ id: Type.Date.LastMonth, name: "Last month", value: "thismonth" },
-					{ id: Type.Date.LastYear, name: "Last year", value: "thisyear" }
-				]
-			},
-		]
-	};
+    return {
+        types: [Type.Feed.Mixed],
+        sorts: [Type.Order.Chronological, "^release_time"],
+        filters: [
+            {
+                id: "date",
+                name: "Date",
+                isMultiSelect: false,
+                filters: [
+                    { id: Type.Date.Today, name: "Last 24 hours", value: "today" },
+                    { id: Type.Date.LastWeek, name: "Last week", value: "thisweek" },
+                    { id: Type.Date.LastMonth, name: "Last month", value: "thismonth" },
+                    { id: Type.Date.LastYear, name: "Last year", value: "thisyear" }
+                ]
+            },
+        ]
+    };
 }
 
 source.search = function (query, type, order, filters, continuationToken) {
@@ -63,11 +63,11 @@ source.search = function (query, type, order, filters, continuationToken) {
 
 source.getSearchChannelContentsCapabilities = function () {
     //This is an example of how to return search capabilities on a channel like available sorts, filters and which feed types are available (see source.js for more details)
-	return {
-		types: [Type.Feed.Mixed],
-		sorts: [Type.Order.Chronological],
-		filters: []
-	};
+    return {
+        types: [Type.Feed.Mixed],
+        sorts: [Type.Order.Chronological],
+        filters: []
+    };
 }
 
 source.searchChannelContents = function (url, query, type, order, filters, continuationToken) {
@@ -106,21 +106,21 @@ source.isChannelUrl = function(url) {
      * @returns: boolean
      */
 
-	return REGEX_CHANNEL_URL.test(url);
+    return REGEX_CHANNEL_URL.test(url);
 }
 
 source.getChannel = function(url) {
-	return new PlatformChannel({
-        id = '8'
-        name = 'faithfulword'
-        thumbnail = ''
-        banner = ''
-        subscribers = 0
-        description = 'Faithful Word Baptist Church'
-        url = 'https://new.godresource.com/c/faithfulword'
-        urlAlternatives = []
-        links = {}
-	});
+    return new PlatformChannel({
+        id              : '8'
+        name            : 'faithfulword'
+        thumbnail       : ''
+        banner          : ''
+        subscribers     : 0
+        description     : 'Faithful Word Baptist Church'
+        url             : 'https://new.godresource.com/c/faithfulword'
+        urlAlternatives : []
+        links           : {}
+    });
 }
 
 source.getChannelContents = function(url, type, order, filters, continuationToken) {
@@ -145,7 +145,7 @@ source.isContentDetailsUrl = function(url) {
      * @returns: boolean
      */
 
-	return REGEX_DETAILS_URL.test(url);
+    return REGEX_DETAILS_URL.test(url);
 }
 
 source.getContentDetails = function(url) {
@@ -154,9 +154,9 @@ source.getContentDetails = function(url) {
      * @returns: PlatformVideoDetails
      */
 
-	return new PlatformVideoDetails({
-		//... see source.js for more details
-	});
+    return new PlatformVideoDetails({
+        //... see source.js for more details
+    });
 }
 
 source.getComments = function (url, continuationToken) {
@@ -178,11 +178,11 @@ source.getSubComments = function (comment) {
      * @returns: SomeCommentPager
      */
 
-	if (typeof comment === 'string') {
-		comment = JSON.parse(comment);
-	}
+    if (typeof comment === 'string') {
+        comment = JSON.parse(comment);
+    }
 
-	return getCommentsPager(comment.context.claimId, comment.context.claimId, 1, false, comment.context.commentId);
+    return getCommentsPager(comment.context.claimId, comment.context.claimId, 1, false, comment.context.commentId);
 }
 
 class SomeCommentPager extends CommentPager {
@@ -196,51 +196,51 @@ class SomeCommentPager extends CommentPager {
 }
 
 class SomeHomeVideoPager extends VideoPager {
-	constructor(results, hasMore, context) {
-		super(results, hasMore, context);
-	}
-	
-	nextPage() {
-		return source.getHome(this.context.continuationToken);
-	}
+    constructor(results, hasMore, context) {
+        super(results, hasMore, context);
+    }
+    
+    nextPage() {
+        return source.getHome(this.context.continuationToken);
+    }
 }
 
 class SomeSearchVideoPager extends VideoPager {
-	constructor(results, hasMore, context) {
-		super(results, hasMore, context);
-	}
-	
-	nextPage() {
-		return source.search(this.context.query, this.context.type, this.context.order, this.context.filters, this.context.continuationToken);
-	}
+    constructor(results, hasMore, context) {
+        super(results, hasMore, context);
+    }
+    
+    nextPage() {
+        return source.search(this.context.query, this.context.type, this.context.order, this.context.filters, this.context.continuationToken);
+    }
 }
 
 class SomeSearchChannelVideoPager extends VideoPager {
-	constructor(results, hasMore, context) {
-		super(results, hasMore, context);
-	}
-	
-	nextPage() {
-		return source.searchChannelContents(this.context.channelUrl, this.context.query, this.context.type, this.context.order, this.context.filters, this.context.continuationToken);
-	}
+    constructor(results, hasMore, context) {
+        super(results, hasMore, context);
+    }
+    
+    nextPage() {
+        return source.searchChannelContents(this.context.channelUrl, this.context.query, this.context.type, this.context.order, this.context.filters, this.context.continuationToken);
+    }
 }
 
 class SomeChannelPager extends ChannelPager {
-	constructor(results, hasMore, context) {
-		super(results, hasMore, context);
-	}
-	
-	nextPage() {
-		return source.searchChannelContents(this.context.query, this.context.continuationToken);
-	}
+    constructor(results, hasMore, context) {
+        super(results, hasMore, context);
+    }
+    
+    nextPage() {
+        return source.searchChannelContents(this.context.query, this.context.continuationToken);
+    }
 }
 
 class SomeChannelVideoPager extends VideoPager {
-	constructor(results, hasMore, context) {
-		super(results, hasMore, context);
-	}
-	
-	nextPage() {
-		return source.getChannelContents(this.context.url, this.context.type, this.context.order, this.context.filters, this.context.continuationToken);
-	}
+    constructor(results, hasMore, context) {
+        super(results, hasMore, context);
+    }
+    
+    nextPage() {
+        return source.getChannelContents(this.context.url, this.context.type, this.context.order, this.context.filters, this.context.continuationToken);
+    }
 }
