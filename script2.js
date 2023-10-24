@@ -147,13 +147,13 @@ source.getChannel = function(url) {
     
     //All Channels
     let channels = {
-        stedfast        : grBuildChannelObj('5' , 'stedfast'        , 'Stedfast Baptist Church')
-        redhot          : grBuildChannelObj('6' , 'redhot'          , 'Red Hot Preaching Conference')
-        timcooper       : grBuildChannelObj('7' , 'timcooper'       , 'Tim Cooper')
-        faithfulword    : grBuildChannelObj('8' , 'faithfulword'    , 'Faithful Word Baptist Church')
-        verity          : grBuildChannelObj('9' , 'verity'          , 'Verity Baptist Church')
-        baptistbias     : grBuildChannelObj('11', 'baptistbias'     , 'Baptist Bias')
-        documentaries   : grBuildChannelObj('12', 'documentaries'   , 'Documentaries')
+        stedfast        : grBuildChannelObj('5' , 'stedfast'        , 'Stedfast Baptist Church'),
+        redhot          : grBuildChannelObj('6' , 'redhot'          , 'Red Hot Preaching Conference'),
+        timcooper       : grBuildChannelObj('7' , 'timcooper'       , 'Tim Cooper'),
+        faithfulword    : grBuildChannelObj('8' , 'faithfulword'    , 'Faithful Word Baptist Church'),
+        verity          : grBuildChannelObj('9' , 'verity'          , 'Verity Baptist Church'),
+        baptistbias     : grBuildChannelObj('11', 'baptistbias'     , 'Baptist Bias'),
+        documentaries   : grBuildChannelObj('12', 'documentaries'   , 'Documentaries'),
     }
 
     // Select by url
