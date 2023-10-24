@@ -125,21 +125,43 @@ source.isChannelUrl = function(url) {
             return false;
     }
     
-    return REGEX_CHANNEL_URL.test(url);
+    //Valid
+    return true
+}
+
+function grBuildChannelObj(id,name,description,thumbnail,banner,subscribers,urlAlternatives,links) {
+    return {
+        id              : id            ?? '',
+        name            : name          ?? '',
+        thumbnail       : thumbnail     ?? '',
+        banner          : banner        ?? '',
+        subscribers     : subscribers   ?? 0,
+        description     : description   ?? '',
+        url             : 'https://new.godresource.com/c/' + name,
+        urlAlternatives : urlAlternatives ?? [],
+        links           : links ?? {}
+    }
 }
 
 source.getChannel = function(url) {
-    return new PlatformChannel({
-        id              : '8',
-        name            : 'faithfulword',
-        thumbnail       : '',
-        banner          : '',
-        subscribers     : 0,
-        description     : 'Faithful Word Baptist Church',
-        url             : 'https://new.godresource.com/c/faithfulword',
-        urlAlternatives : [],
-        links           : {}
-    });
+    
+    //All Channels
+    let channels = {
+        stedfast        : grBuildChannelObj('5' , 'stedfast'        , 'Stedfast Baptist Church')
+        redhot          : grBuildChannelObj('6' , 'redhot'          , 'Red Hot Preaching Conference')
+        timcooper       : grBuildChannelObj('7' , 'timcooper'       , 'Tim Cooper')
+        faithfulword    : grBuildChannelObj('8' , 'faithfulword'    , 'Faithful Word Baptist Church')
+        verity          : grBuildChannelObj('9' , 'verity'          , 'Verity Baptist Church')
+        baptistbias     : grBuildChannelObj('11', 'baptistbias'     , 'Baptist Bias')
+        documentaries   : grBuildChannelObj('12', 'documentaries'   , 'Documentaries')
+    }
+
+    // Select by url
+    let u = new URL(url)
+    let channel = channels[u.pathname.split('/').at(-1)]
+    
+    // Return
+    return new PlatformChannel(channel);
 }
 
 source.getChannelContents = function(url, type, order, filters, continuationToken) {
