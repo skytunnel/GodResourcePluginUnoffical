@@ -111,14 +111,14 @@ source.isChannelUrl = function(url) {
 
 source.getChannel = function(url) {
     return new PlatformChannel({
-        id              : '8'
-        name            : 'faithfulword'
-        thumbnail       : ''
-        banner          : ''
-        subscribers     : 0
-        description     : 'Faithful Word Baptist Church'
-        url             : 'https://new.godresource.com/c/faithfulword'
-        urlAlternatives : []
+        id              : '8',
+        name            : 'faithfulword',
+        thumbnail       : '',
+        banner          : '',
+        subscribers     : 0,
+        description     : 'Faithful Word Baptist Church',
+        url             : 'https://new.godresource.com/c/faithfulword',
+        urlAlternatives : [],
         links           : {}
     });
 }
