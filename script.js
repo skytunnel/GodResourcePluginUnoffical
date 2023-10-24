@@ -109,9 +109,20 @@ source.isChannelUrl = function(url) {
 	return REGEX_CHANNEL_URL.test(url);
 }
 
+8	Faithful Word Baptist Church	faithfulword	{@{channelId=8; channelName=Faithful Word Baptist Church; channelStreamName=faithfulword; streamId=811; streamUrl=https://cdn-02.godresource.com/f411e020-72d0-447f-9494-3af178b5d535/index.m3u8; streamUrlKey=ADMxjnRwFog; title=; streamDescription=; streamDateCreated=2023-10-23T00:46:56Z; streamDateModified=2023-10-23T02:28:57Z; thumbnail=https://cdn-02.godresource.com/f411e020-72d0-447f-9494-3af178b5d535/thumbnail.jpg; isLive=False; hasThumbnail=True; hasMp4=False; views=1275; organizationId=; productId=5; type=Video; error=}, @{channelId=8; channelName=Faithful Word Baptist Church; channelStreamName=faithfulword; streamId=807; streamUrl=https://cdn-02.godresource.com/9afe3c10-3b64-4bef-be5d-fc44fa6ca1ab/index.m3u8; streamUrlKey=ajQV1AdmFDk; title=; streamDescription=; streamDateCreated=2023-10-22T17:11:46Z; streamDateModified=2023-10-22T18:52:37Z; thumbnail=https://cdn-02.godresource.com/9afe3c10-3b64-4bef-be5d-fc44fa6ca1ab/thumbnail.jpg; isLive=False; hasThumbnail=True; hasMp4=False; views=532; organizationId=; productId=5; type=Video; error=}, @{channelId=8; channelName=Faithful Word Baptist Church; channelStreamName=faithfulword; streamId=804; streamUrl=https://cdn-02.godresource.com/27e6916e-c211-47bc-b08b-df7d70252dce/index.m3u8; streamUrlKey=f3G0rgsJ00x; title=; streamDescription=; streamDateCreated=2023-10-19T01:54:16Z; streamDateModified=2023-10-19T03:15:16Z; thumbnail=https://cdn-02.godresource.com/27e6916e-c211-47bc-b08b-df7d70252dce/thumbnail.jpg; isLive=False; hasThumbnail=True; hasMp4=False; views=2334; organizationId=; productId=5; type=Video; error=}, @{channelId=8; channelName=Faithful Word Baptist Church; channelStreamName=faithfulword; streamId=801; streamUrl=https://cdn-02.godresource.com/3a00ff9a-75db-43f5-b9a5-bca4fde20c6f/index.m3u8; streamUrlKey=Tfkv48J_ox5; title=; streamDescription=; streamDateCreated=2023-10-16T00:37:16Z; streamDateModified=2023-10-16T02:20:17Z; thumbnail=https://cdn-02.godresource.com/3a00ff9a-75db-43f5-b9a5-bca4fde20c6f/thumbnail.jpg; isLive=False; hasThumbnail=True; hasMp4=False; views=2633; organizationId=; productId=5; type=Video; error=}...}		
+
+
 source.getChannel = function(url) {
 	return new PlatformChannel({
-		//... see source.js for more details
+        id = '8'
+        name = 'faithfulword'
+        thumbnail = ''
+        banner = ''
+        subscribers = 0
+        description = 'Faithful Word Baptist Church'
+        url = 'https://new.godresource.com/c/faithfulword'
+        urlAlternatives = []
+        links = {}
 	});
 }
 
