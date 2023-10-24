@@ -105,7 +105,26 @@ source.isChannelUrl = function(url) {
      * @param url: string
      * @returns: boolean
      */
-
+    
+    //Valid domain
+    let u = new URL(url)
+    if (u.host != 'new.godresource.com') {
+        return false
+    }
+    
+    //Valid Channels
+    switch (u.pathname) {
+        case '/c/faithfulword': break;
+        case '/c/stedfast': break;
+        case '/c/redhot': break;
+        case '/c/timcooper': break;
+        case '/c/verity': break;
+        case '/c/baptistbias': break;
+        case '/c/documentaries': break;
+        default:
+            return false;
+    }
+    
     return REGEX_CHANNEL_URL.test(url);
 }
 
