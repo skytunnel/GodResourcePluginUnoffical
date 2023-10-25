@@ -1,7 +1,38 @@
+
+// Global variables
+let grChannels = []
+let grLatestVideos = []
+let defaultThumbnail = "https://www.godresource.com/Images/Logos/GRLogo.jpg"
+
+//Plugin Enabled
 source.enable = function (conf) {
     /**
      * @param conf: SourceV8PluginConfig (the SomeConfig.js)
      */
+     
+    //maybe load the channels up here to global variable??
+    //Assume this method calls when app is loaded on startup?
+    const grGetChannels = async () => {
+      const response = await fetch('https://api.godresource.com/api/Channels');
+      const json = await response.json();
+      return json
+    }
+    grGetChannels().then(
+        function(value) {
+            if (value.error) {
+                throwException('error',value.error)
+            } else {
+                grChannels = value.channels
+                grChannels.forEach(function(e) {
+                    grLatestVideos = grLatestVideos.concat(e.streams)
+                    e.streams = null
+                })
+            }
+        },
+        function(error) {
+            throwException('error',error)
+        }
+    )
 }
 
 source.getHome = function(continuationToken) {
@@ -9,7 +40,25 @@ source.getHome = function(continuationToken) {
      * @param continuationToken: any?
      * @returns: VideoPager
      */
+    
     const videos = []; // The results (PlatformVideo)
+    grLatestVideos.forEach(function(e) {
+        if (e.type === "Video") {
+            videos.push(new PlatformVideo({
+                id          : null, //PlatformID
+                name        : e.title ?? "Stream started at " + (new Date(e.streamDateCreated)).toLocaleString(),
+                thumbnails  : new Thumbnail(e.thumbnail),
+                author      : new PlatformAuthorLink(null, e.channelName, "https://new.godresource.com/c/" + e.channelStreamName, defaultThumbnail),
+                datetime    : (new Date(e.streamDateCreated)).getTime(),
+                url         : e.streamUrl,
+                shareUrl    : "https://new.godresource.com/video/" + e.streamUrlKey,
+                duration    : -1,
+                viewCount   : e.views,
+                isLive      : e.isLive
+            }))
+        }
+    })
+    
     const hasMore = false; // Are there more pages?
     const context = { continuationToken: continuationToken }; // Relevant data for the next page
     return new SomeHomeVideoPager(videos, hasMore, context);
