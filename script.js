@@ -45,10 +45,10 @@ source.getHome = function(continuationToken) {
     grLatestVideos.forEach(function(e) {
         if (e.type === "Video") {
             videos.push(new PlatformVideo({
-                id          : null, //PlatformID
+                id          : new PlatformID(), //PlatformID
                 name        : e.title ?? "Stream started at " + (new Date(e.streamDateCreated)).toLocaleString(),
                 thumbnails  : new Thumbnail(e.thumbnail),
-                author      : new PlatformAuthorLink(null, e.channelName, "https://new.godresource.com/c/" + e.channelStreamName, defaultThumbnail),
+                author      : new PlatformAuthorLink(new PlatformID(), e.channelName, "https://new.godresource.com/c/" + e.channelStreamName, defaultThumbnail),
                 datetime    : (new Date(e.streamDateCreated)).getTime(),
                 url         : e.streamUrl,
                 shareUrl    : "https://new.godresource.com/video/" + e.streamUrlKey,
