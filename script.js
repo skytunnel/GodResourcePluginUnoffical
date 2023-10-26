@@ -1,15 +1,80 @@
+
+// Global variables
+let grConfig = {}
+let grChannels = []
+let grLatestVideos = []
+const grDefaultThumbnail = "https://www.godresource.com/Images/Logos/GRLogo.jpg"
+const grChannelUrl = "https://new.godresource.com/c/"
+const grVideoUrl = "https://new.godresource.com/video/"
+let source = {}
+
+//Plugin Enabled
 source.enable = function (conf) {
     /**
      * @param conf: SourceV8PluginConfig (the SomeConfig.js)
      */
+    
+    //Store Config
+    grConfig = conf ?? {}
+    
+    // Setup platform ibject
+    //grPlatform = new PlatformID(null, null, conf.id) //platform, id, pluginId, claimType, claimFieldType
+
+     
+    //maybe load the channels up here to global variable??
+    //Assume this method calls when app is loaded on startup?
+    const grGetChannels = async () => {
+      const response = await fetch('https://api.godresource.com/api/Channels');
+      const json = await response.json();
+      return json
+    }
+    grGetChannels().then(
+        function(value) {
+            if (value.error) {
+                throwException('error',value.error)
+            } else {
+                grChannels = value.channels
+                grChannels.forEach(function(e) {
+                    grLatestVideos = grLatestVideos.concat(e.streams)
+                    e.streams = null
+                })
+            }
+        },
+        function(error) {
+            throwException('error',error)
+        }
+    )
 }
+
+// function to convert video object to PlatformVideo class
+function grVideoToPlatformVideo(video) {
+    if (video.type === "Video") {
+        new PlatformVideo({
+            id          : new PlatformID(grConfig.id, video.streamId),
+            name        : video.title ?? "Stream started at " + (new Date(video.streamDateCreated)).toLocaleString(),
+            thumbnails  : new Thumbnails([new Thumbnail(video.thumbnail,0)]),
+            author      : new PlatformAuthorLink(grConfig.id, 
+                e.channelName, 
+                grChannelUrl + video.channelStreamName, 
+                grDefaultThumbnail),
+            datetime    : (new Date(video.streamDateCreated)).getTime(),
+            url         : video.streamUrl,
+            shareUrl    : grVideoUrl + video.streamUrlKey,
+            duration    : 0,
+            viewCount   : video.views,
+            isLive      : video.isLive
+        })
+    }
+}
+
 
 source.getHome = function(continuationToken) {
     /**
      * @param continuationToken: any?
      * @returns: VideoPager
      */
-    const videos = []; // The results (PlatformVideo)
+    
+    const videos = grLatestVideos.map((x) => grVideoToPlatformVideo(x))
     const hasMore = false; // Are there more pages?
     const context = { continuationToken: continuationToken }; // Relevant data for the next page
     return new SomeHomeVideoPager(videos, hasMore, context);
