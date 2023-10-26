@@ -47,10 +47,9 @@ source.enable = function (conf) {
 
 // function to convert video object to PlatformVideo class
 function grVideoToPlatformVideo(video) {
-    console.log(video)
     if (video.type === "Video") {
-        new PlatformVideo({
-            id          : new PlatformID(grConfig.id, video.streamId),
+        return new PlatformVideo({
+            id          : new PlatformID('God Resource', grConfig.id) //, video.streamId),
             name        : video.title ?? "Stream started at " + (new Date(video.streamDateCreated)).toLocaleString(),
             thumbnails  : new Thumbnails([new Thumbnail(video.thumbnail,0)]),
             author      : new PlatformAuthorLink(grConfig.id, 
