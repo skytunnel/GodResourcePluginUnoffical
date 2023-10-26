@@ -49,7 +49,7 @@ source.enable = function (conf) {
 function grVideoToPlatformVideo(video) {
     if (video.type === "Video") {
         return new PlatformVideo({
-            id          : new PlatformID(grConfig.id, video.streamId),
+            id          : new PlatformID(grConfig.name, grConfig.id) //, video.streamId),
             name        : video.title ?? "Stream started at " + (new Date(video.streamDateCreated)).toLocaleString(),
             thumbnails  : new Thumbnails([new Thumbnail(video.thumbnail,0)]),
             author      : new PlatformAuthorLink(grConfig.id, 
