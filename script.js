@@ -6,7 +6,7 @@ let grLatestVideos = []
 const grDefaultThumbnail = "https://www.godresource.com/Images/Logos/GRLogo.jpg"
 const grChannelUrl = "https://new.godresource.com/c/"
 const grVideoUrl = "https://new.godresource.com/video/"
-
+let source = {}
 
 //Plugin Enabled
 source.enable = function (conf) {
@@ -15,10 +15,10 @@ source.enable = function (conf) {
      */
     
     //Store Config
-    grConfig = config ?? {}
+    grConfig = conf ?? {}
     
     // Setup platform ibject
-    //grPlatform = new PlatformID(null, null, config.id) //platform, id, pluginId, claimType, claimFieldType
+    //grPlatform = new PlatformID(null, null, conf.id) //platform, id, pluginId, claimType, claimFieldType
 
      
     //maybe load the channels up here to global variable??
@@ -48,6 +48,7 @@ source.enable = function (conf) {
 
 // function to convert video object to PlatformVideo class
 function grVideoToPlatformVideo(video) {
+    console.log(video)
     if (video.type === "Video") {
         new PlatformVideo({
             id          : new PlatformID(grConfig.id, video.streamId),
