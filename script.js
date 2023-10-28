@@ -19,7 +19,7 @@ function grVideoToPlatformVideo(v) {
             id          : new PlatformID(PLATFORM, v.id, config.id),
             name        : v.title ?? "Stream started at " + (new Date(v.streamDateCreated)).toLocaleString(),
             thumbnails  : new Thumbnails([new Thumbnail(v.thumbnail,0)]),
-            author      : grGetPlatformAuthorLink(v.channelStreamName),
+            author      : grGetPlatformAuthorLink(v.channelStreamName, v.channelName),
             datetime    : Math.round((new Date(v.streamDateCreated)).getTime() / 1000),
             url         : v.streamUrl,
             shareUrl    : grVideoUrl + v.streamUrlKey,
@@ -53,10 +53,10 @@ function grGetPlatformChannel(channelStreamName) {
 }
 
 // function to return PlatformAuthorLink object from name
-function grGetPlatformAuthorLink(channelStreamName) {
+function grGetPlatformAuthorLink(channelStreamName, channelName) {
     return new PlatformAuthorLink(
         new PlatformID(PLATFORM, channelStreamName, config.id), 
-        v.channelName, 
+        channelName, 
         grChannelUrl + channelStreamName, 
         grDefaultThumbnail
     );
@@ -97,7 +97,7 @@ source.enable = function (conf) {
         return null;
     }
     const obj = JSON.parse(response.body);
-    if (obj.error != 200) {
+    if (obj.error) {
         log("God Resource error:", obj.error);
         return null;
     }
@@ -195,7 +195,7 @@ source.searchChannels = function (query, continuationToken) {
     
     const channels = grChannels.filter((c)=>c.name.toLowerCase().indexOf(query.toLowerCase())>0)
     return new grChannelPager(channels.map((c)=>{grGetPlatformChannel(c.channelStreamName)}),false)
-    //return new grChannelPager(channels.map((c)=>{grGetPlatformAuthorLink(c.channelStreamName)}),false)
+    //return new grChannelPager(channels.map((c)=>{grGetPlatformAuthorLink(c.channelStreamName, c.channelName)}),false)
 }
 
 source.isChannelUrl = function(url) {
@@ -246,7 +246,7 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
 		return new VideoPager([], false);
 	}
     const channel = JSON.parse(res.body);
-    if (obj.error != 200) {
+    if (obj.error) {
         log("God Resource error:", obj.error);
         return new VideoPager([], false);
     }
