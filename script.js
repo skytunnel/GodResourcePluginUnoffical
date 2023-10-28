@@ -223,23 +223,34 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
 	const handle = tokens[tokens.length - 1];
     
     //Initially only show the videos from home page
+    console.log(continuationToken)
+    let minStreamId = null
     if (continuationToken) {
-        if (!continuationToken.minStreamId) {
-            const channel = grGetChannel(handle)
-            const videos = channel.streams.map((v) => grVideoToPlatformVideo(v))
-            const hasMore = videos.count === 10; //Max shown on home page (assume this means there is more)
-            const context = { 
-                url     : url,
-                type    : type, 
-                order   : order, 
-                filters : filters, 
-                continuationToken: {
-                    minStreamId : Math.min.apply(Math,videos.map((v) => parseInt(v.streamId)))
-                }
-            }
-            return new grChannelVideoPager(videos, hasMore, context);
+        console.log('a')
+        if (continuationToken.minStreamId) {
+            console.log('b')
+            minStreamId = continuationToken.minStreamId
         }
     }
+    console.log('c')
+    if (!minStreamId) {
+        console.log('d')
+        const channel = grGetChannel(handle)
+        const videos = channel.streams.map((v) => grVideoToPlatformVideo(v))
+        const hasMore = videos.count === 10; //Max shown on home page (assume this means there is more)
+        const context = { 
+            url     : url,
+            type    : type, 
+            order   : order, 
+            filters : filters, 
+            continuationToken: {
+                minStreamId : Math.min.apply(Math,videos.map((v) => parseInt(v.streamId)))
+            }
+        }
+        return new grChannelVideoPager(videos, hasMore, context);
+    }
+    console.log('e')
+
     
     //Then fetch all on continuation
     const res = http.GET(grChannelApi + handle, {});
@@ -248,8 +259,8 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
 		return new VideoPager([], false);
 	}
     const channel = JSON.parse(res.body);
-    if (obj.error) {
-        log("God Resource error:", obj.error);
+    if (channel.error) {
+        log("God Resource error:", channel.error);
         return new VideoPager([], false);
     }
     
