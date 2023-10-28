@@ -32,7 +32,7 @@ function grVideoToPlatformVideo(v) {
 
 // function to get the channel details from name
 function grGetChannel(channelStreamName) {
-    return grChannels.find((c) => c.channelStreamName == channelStreamName)
+    return grChannels.find((c) => c.channelStreamName === channelStreamName)
 }
 
 // function to return PlatformChannel object from name
@@ -194,8 +194,8 @@ source.searchChannels = function (query, continuationToken) {
      */
     
     const channels = grChannels.filter((c)=>c.name.toLowerCase().indexOf(query.toLowerCase())>0)
-    return new grChannelPager(channels.map((c)=>{grGetPlatformChannel(c.channelStreamName)}),false)
-    //return new grChannelPager(channels.map((c)=>{grGetPlatformAuthorLink(c.channelStreamName, c.channelName)}),false)
+    return new grChannelPager(channels.map((c) => grGetPlatformChannel(c.channelStreamName)),false)
+    //return new grChannelPager(channels.map((c) => grGetPlatformAuthorLink(c.channelStreamName, c.channelName)),false)
 }
 
 source.isChannelUrl = function(url) {
@@ -223,20 +223,22 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
 	const handle = tokens[tokens.length - 1];
     
     //Initially only show the videos from home page
-    if (!continuationToken.minStreamId) {
-        const channel = grGetChannel(handle)
-        const videos = channel.streams.map((v) => grVideoToPlatformVideo(v))
-        const hasMore = videos.count === 10; //Max shown on home page (assume this means there is more)
-        const context = { 
-            url     : url,
-            type    : type, 
-            order   : order, 
-            filters : filters, 
-            continuationToken: {
-                minStreamId : Math.min.apply(Math,videos.map((v) => parseInt(v.streamId)))
+    if (continuationToken) {
+        if (!continuationToken.minStreamId) {
+            const channel = grGetChannel(handle)
+            const videos = channel.streams.map((v) => grVideoToPlatformVideo(v))
+            const hasMore = videos.count === 10; //Max shown on home page (assume this means there is more)
+            const context = { 
+                url     : url,
+                type    : type, 
+                order   : order, 
+                filters : filters, 
+                continuationToken: {
+                    minStreamId : Math.min.apply(Math,videos.map((v) => parseInt(v.streamId)))
+                }
             }
+            return new grChannelVideoPager(videos, hasMore, context);
         }
-        return new grChannelVideoPager(videos, hasMore, context);
     }
     
     //Then fetch all on continuation
