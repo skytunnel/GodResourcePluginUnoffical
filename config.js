@@ -2,9 +2,9 @@
     "name": "God Resource (Unofficial)",
     "description": "Sermons from nifb",
     "author": "Stuart Houston",
-    "authorUrl": "https://new.godresource.com/video",
+    "authorUrl": "https://github.com/skytunnel",
     
-    "repositoryUrl": "https://github.com/skytunnel/GodResourcePluginUnoffical/main",
+    "repositoryUrl": "https://github.com/skytunnel/GodResourcePluginUnoffical/dev",
     "sourceUrl": "./config.js",
     "scriptUrl": "./script.js",
     "version": 1,
