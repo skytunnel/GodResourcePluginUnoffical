@@ -19,7 +19,7 @@ function grVideoToPlatformVideo(v) {
             id          : new PlatformID(PLATFORM, v.id, config.id),
             name        : v.title ?? "Stream started at " + (new Date(v.streamDateCreated)).toLocaleString(),
             thumbnails  : new Thumbnails([new Thumbnail(v.thumbnail,0)]),
-            author      : grGetPlatformAuthorLink(v.channelStreamName),
+            author      : grGetPlatformAuthorLink(v.channelStreamName, v.channelName),
             datetime    : Math.round((new Date(v.streamDateCreated)).getTime() / 1000),
             url         : v.streamUrl,
             shareUrl    : grVideoUrl + v.streamUrlKey,
@@ -32,7 +32,7 @@ function grVideoToPlatformVideo(v) {
 
 // function to get the channel details from name
 function grGetChannel(channelStreamName) {
-    return grChannels.find((c) => c.channelStreamName == channelStreamName)
+    return grChannels.find((c) => c.channelStreamName === channelStreamName)
 }
 
 // function to return PlatformChannel object from name
@@ -53,10 +53,10 @@ function grGetPlatformChannel(channelStreamName) {
 }
 
 // function to return PlatformAuthorLink object from name
-function grGetPlatformAuthorLink(channelStreamName) {
+function grGetPlatformAuthorLink(channelStreamName, channelName) {
     return new PlatformAuthorLink(
         new PlatformID(PLATFORM, channelStreamName, config.id), 
-        v.channelName, 
+        channelName, 
         grChannelUrl + channelStreamName, 
         grDefaultThumbnail
     );
@@ -194,8 +194,8 @@ source.searchChannels = function (query, continuationToken) {
      */
     
     const channels = grChannels.filter((c)=>c.name.toLowerCase().indexOf(query.toLowerCase())>0)
-    return new grChannelPager(channels.map((c)=>{grGetPlatformChannel(c.channelStreamName)}),false)
-    //return new grChannelPager(channels.map((c)=>{grGetPlatformAuthorLink(c.channelStreamName)}),false)
+    return new grChannelPager(channels.map((c) => grGetPlatformChannel(c.channelStreamName)),false)
+    //return new grChannelPager(channels.map((c) => grGetPlatformAuthorLink(c.channelStreamName, c.channelName)),false)
 }
 
 source.isChannelUrl = function(url) {
