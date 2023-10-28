@@ -1,29 +1,78 @@
 
+const PLATFORM = "GODRESOURCE";
+
+var config = {};
+
 // Global variables
-let grConfig = {}
+
 let grChannels = []
 let grLatestVideos = []
 const grDefaultThumbnail = "https://www.godresource.com/Images/Logos/GRLogo.jpg"
+const grChannelApi = "https://api.godresource.com/api/Channels/"
 const grChannelUrl = "https://new.godresource.com/c/"
 const grVideoUrl = "https://new.godresource.com/video/"
 
-//Plugin Enabled
+// function to convert video object to PlatformVideo class
+function grVideoToPlatformVideo(v) {
+    if (v.type === "Video") {
+        return new PlatformVideo({
+            id          : new PlatformID(PLATFORM, v.id, config.id),
+            name        : v.title ?? "Stream started at " + (new Date(v.streamDateCreated)).toLocaleString(),
+            thumbnails  : new Thumbnails([new Thumbnail(v.thumbnail,0)]),
+            author      : grGetPlatformAuthorLink(v.channelStreamName),
+            datetime    : Math.round((new Date(v.streamDateCreated)).getTime() / 1000),
+            url         : v.streamUrl,
+            shareUrl    : grVideoUrl + v.streamUrlKey,
+            duration    : 0,
+            viewCount   : v.views,
+            isLive      : v.isLive
+        })
+    }
+}
+
+// function to get the channel details from name
+function grGetChannel(channelStreamName) {
+    return grChannels.find((c) => c.channelStreamName == channelStreamName)
+}
+
+// function to return PlatformChannel object from name
+function grGetPlatformChannel(channelStreamName) {
+    const channel = grGetChannel(channelStreamName)
+    if (channel) {
+        return new PlatformChannel({
+            id: new PlatformID(PLATFORM, channelStreamName, config.id),
+            name: channel.name,
+            thumbnail: grDefaultThumbnail,
+            banner: null,
+            subscribers: 0,
+            description: 0,
+            url: grChannelUrl + channelStreamName,
+            links: {}
+        });
+    }
+}
+
+// function to return PlatformAuthorLink object from name
+function grGetPlatformAuthorLink(channelStreamName) {
+    return new PlatformAuthorLink(
+        new PlatformID(PLATFORM, channelStreamName, config.id), 
+        v.channelName, 
+        grChannelUrl + channelStreamName, 
+        grDefaultThumbnail
+    );
+}
+
+
+
+//Plugin Enabled/Started
 source.enable = function (conf) {
-    /**
-     * @param conf: SourceV8PluginConfig (the SomeConfig.js)
-     */
     
     //Store Config
-    grConfig = conf ?? {}
+    config = conf ?? {}
     
-    // Setup platform ibject
-    //grPlatform = new PlatformID(null, null, conf.id) //platform, id, pluginId, claimType, claimFieldType
-
-     
-    //maybe load the channels up here to global variable??
-    //Assume this method calls when app is loaded on startup?
+    /*Initialise home page and channel list
     const grGetChannels = async () => {
-      const response = await fetch('https://api.godresource.com/api/Channels');
+      const response = await fetch(grChannelApi);
       const json = await response.json();
       return json
     }
@@ -35,48 +84,35 @@ source.enable = function (conf) {
                 grChannels = value.channels
                 grChannels.forEach(function(e) {
                     grLatestVideos = grLatestVideos.concat(e.streams)
-                    e.streams = null
                 })
             }
         },
         function(error) {
             throwException('error',error)
         }
-    )
-}
-
-// function to convert video object to PlatformVideo class
-function grVideoToPlatformVideo(video) {
-    if (video.type === "Video") {
-        return new PlatformVideo({
-            id          : new PlatformID(grConfig.name , grConfig.id), //, video.streamId),
-            name        : video.title ?? "Stream started at " + (new Date(video.streamDateCreated)).toLocaleString(),
-            thumbnails  : new Thumbnails([new Thumbnail(video.thumbnail,0)]),
-            author      : new PlatformAuthorLink(grConfig.id, 
-                video.channelName, 
-                grChannelUrl + video.channelStreamName, 
-                grDefaultThumbnail),
-            datetime    : (new Date(video.streamDateCreated)).getTime(),
-            url         : video.streamUrl,
-            shareUrl    : grVideoUrl + video.streamUrlKey,
-            duration    : 0,
-            viewCount   : video.views,
-            isLive      : video.isLive
-        })
+    )*/
+    const response = http.GET(grChannelApi, {});
+    if (response.code != 200) {
+        log("Failed to get video detail", response);
+        return null;
     }
+    const obj = JSON.parse(response.body);
+    if (obj.error != 200) {
+        log("God Resource error:", obj.error);
+        return null;
+    }
+    grChannels = obj.channels
+    grChannels.forEach((c) => grLatestVideos = grLatestVideos.concat(c.streams))
 }
 
-
-source.getHome = function(continuationToken) {
+source.getHome = function() {
     /**
      * @param continuationToken: any?
      * @returns: VideoPager
      */
     
-    const videos = grLatestVideos.map((x) => grVideoToPlatformVideo(x))
-    const hasMore = false; // Are there more pages?
-    const context = { continuationToken: continuationToken }; // Relevant data for the next page
-    return new SomeHomeVideoPager(videos, hasMore, context);
+    const videos = grLatestVideos.map((v) => grVideoToPlatformVideo(v))
+    return new grHomeVideoPager(videos, false);
 }
 
 source.searchSuggestions = function(query) {
@@ -90,10 +126,9 @@ source.searchSuggestions = function(query) {
 }
 
 source.getSearchCapabilities = function() {
-    //This is an example of how to return search capabilities like available sorts, filters and which feed types are available (see source.js for more details) 
     return {
         types: [Type.Feed.Mixed],
-        sorts: [Type.Order.Chronological, "^release_time"],
+        sorts: [Type.Order.Chronological, "streamDateCreated"],
         filters: [
             {
                 id: "date",
@@ -122,7 +157,7 @@ source.search = function (query, type, order, filters, continuationToken) {
     const videos = []; // The results (PlatformVideo)
     const hasMore = false; // Are there more pages?
     const context = { query: query, type: type, order: order, filters: filters, continuationToken: continuationToken }; // Relevant data for the next page
-    return new SomeSearchVideoPager(videos, hasMore, context);
+    return new grSearchVideoPager(videos, hasMore, context);
 }
 
 source.getSearchChannelContentsCapabilities = function () {
@@ -148,7 +183,7 @@ source.searchChannelContents = function (url, query, type, order, filters, conti
     const videos = []; // The results (PlatformVideo)
     const hasMore = false; // Are there more pages?
     const context = { channelUrl: channelUrl, query: query, type: type, order: order, filters: filters, continuationToken: continuationToken }; // Relevant data for the next page
-    return new SomeSearchChannelVideoPager(videos, hasMore, context);
+    return new grSearchChannelVideoPager(videos, hasMore, context);
 }
 
 source.searchChannels = function (query, continuationToken) {
@@ -157,75 +192,20 @@ source.searchChannels = function (query, continuationToken) {
      * @param continuationToken: any?
      * @returns: ChannelPager
      */
-
-    const channels = []; // The results (PlatformChannel)
-    const hasMore = false; // Are there more pages?
-    const context = { query: query, continuationToken: continuationToken }; // Relevant data for the next page
-    return new SomeChannelPager(channels, hasMore, context);
+    
+    const channels = grChannels.filter((c)=>c.name.toLowerCase().indexOf(query.toLowerCase())>0)
+    return new grChannelPager(channels.map((c)=>{grGetPlatformChannel(c.channelStreamName)}),false)
+    //return new grChannelPager(channels.map((c)=>{grGetPlatformAuthorLink(c.channelStreamName)}),false)
 }
 
 source.isChannelUrl = function(url) {
-    /**
-     * @param url: string
-     * @returns: boolean
-     */
-    
-    //Valid domain
-    let u = new URL(url)
-    if (u.host != 'new.godresource.com') {
-        return false
-    }
-    
-    //Valid Channels
-    switch (u.pathname) {
-        case '/c/faithfulword': break;
-        case '/c/stedfast': break;
-        case '/c/redhot': break;
-        case '/c/timcooper': break;
-        case '/c/verity': break;
-        case '/c/baptistbias': break;
-        case '/c/documentaries': break;
-        default:
-            return false;
-    }
-    
-    //Valid
-    return true
-}
-
-function grBuildChannelObj(id,name,description,thumbnail,banner,subscribers,urlAlternatives,links) {
-    return {
-        id              : id            ?? '',
-        name            : name          ?? '',
-        thumbnail       : thumbnail     ?? '',
-        banner          : banner        ?? '',
-        subscribers     : subscribers   ?? 0,
-        description     : description   ?? '',
-        url             : 'https://new.godresource.com/c/' + name,
-        urlAlternatives : urlAlternatives ?? [],
-        links           : links ?? {}
-    }
+    return url.startsWith(grChannelUrl);
 }
 
 source.getChannel = function(url) {
-    
-    //All Channels
-    let channels = {
-        stedfast        : grBuildChannelObj('5' , 'stedfast'        , 'Stedfast Baptist Church'),
-        redhot          : grBuildChannelObj('6' , 'redhot'          , 'Red Hot Preaching Conference'),
-        timcooper       : grBuildChannelObj('7' , 'timcooper'       , 'Tim Cooper'),
-        faithfulword    : grBuildChannelObj('8' , 'faithfulword'    , 'Faithful Word Baptist Church'),
-        verity          : grBuildChannelObj('9' , 'verity'          , 'Verity Baptist Church'),
-        baptistbias     : grBuildChannelObj('11', 'baptistbias'     , 'Baptist Bias'),
-        documentaries   : grBuildChannelObj('12', 'documentaries'   , 'Documentaries'),
-    }
-
-    // Select by url
-    let u = new URL(url)
-    let channel = channels[u.pathname.split('/').at(-1)]
-    
-    // Return
-    return new PlatformChannel(channel);
+	const tokens = url.split('/');
+	const handle = tokens[tokens.length - 1];
+    return grGetPlatformChannel(handle)
 }
 
 source.getChannelContents = function(url, type, order, filters, continuationToken) {
@@ -237,11 +217,53 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
      * @param continuationToken: any?
      * @returns: VideoPager
      */
-
-    const videos = []; // The results (PlatformVideo)
+    
+    //Get the channel
+	const tokens = url.split('/');
+	const handle = tokens[tokens.length - 1];
+    
+    //Initially only show the videos from home page
+    if (!continuationToken.minStreamId) {
+        const channel = grGetChannel(handle)
+        const videos = channel.streams.map((v) => grVideoToPlatformVideo(v))
+        const hasMore = videos.count === 10; //Max shown on home page (assume this means there is more)
+        const context = { 
+            url     : url,
+            type    : type, 
+            order   : order, 
+            filters : filters, 
+            continuationToken: {
+                minStreamId : Math.min.apply(Math,videos.map((v) => parseInt(v.streamId)))
+            }
+        }
+        return new grChannelVideoPager(videos, hasMore, context);
+    }
+    
+    //Then fetch all on continuation
+    const res = http.GET(grChannelApi + handle, {});
+	if (res.code != 200) {
+		log("Failed to get videos", res);
+		return new VideoPager([], false);
+	}
+    const channel = JSON.parse(res.body);
+    if (obj.error != 200) {
+        log("God Resource error:", obj.error);
+        return new VideoPager([], false);
+    }
+    
+    //Return
+    const videos = channel.streams.filter((v) => v.streamId < continuationToken.minStreamId).map((v) => grVideoToPlatformVideo(v))
     const hasMore = false; // Are there more pages?
-    const context = { url: url, query: query, type: type, order: order, filters: filters, continuationToken: continuationToken }; // Relevant data for the next page
-    return new SomeChannelVideoPager(videos, hasMore, context);
+    const context = { 
+        url     : url,
+        type    : type, 
+        order   : order, 
+        filters : filters, 
+        continuationToken: {
+            minStreamId : 0
+        }
+    };
+    return new grChannelVideoPager(videos, hasMore, context);
 }
 
 source.isContentDetailsUrl = function(url) {
@@ -274,13 +296,13 @@ source.getComments = function (url, continuationToken) {
     const comments = []; // The results (Comment)
     const hasMore = false; // Are there more pages?
     const context = { url: url, continuationToken: continuationToken }; // Relevant data for the next page
-    return new SomeCommentPager(comments, hasMore, context);
+    return new grCommentPager(comments, hasMore, context);
 
 }
 source.getSubComments = function (comment) {
     /**
      * @param comment: Comment
-     * @returns: SomeCommentPager
+     * @returns: grCommentPager
      */
 
     if (typeof comment === 'string') {
@@ -290,7 +312,7 @@ source.getSubComments = function (comment) {
     return getCommentsPager(comment.context.claimId, comment.context.claimId, 1, false, comment.context.commentId);
 }
 
-class SomeCommentPager extends CommentPager {
+class grCommentPager extends CommentPager {
     constructor(results, hasMore, context) {
         super(results, hasMore, context);
     }
@@ -300,7 +322,7 @@ class SomeCommentPager extends CommentPager {
     }
 }
 
-class SomeHomeVideoPager extends VideoPager {
+class grHomeVideoPager extends VideoPager {
     constructor(results, hasMore, context) {
         super(results, hasMore, context);
     }
@@ -310,7 +332,7 @@ class SomeHomeVideoPager extends VideoPager {
     }
 }
 
-class SomeSearchVideoPager extends VideoPager {
+class grSearchVideoPager extends VideoPager {
     constructor(results, hasMore, context) {
         super(results, hasMore, context);
     }
@@ -320,7 +342,7 @@ class SomeSearchVideoPager extends VideoPager {
     }
 }
 
-class SomeSearchChannelVideoPager extends VideoPager {
+class grSearchChannelVideoPager extends VideoPager {
     constructor(results, hasMore, context) {
         super(results, hasMore, context);
     }
@@ -330,17 +352,17 @@ class SomeSearchChannelVideoPager extends VideoPager {
     }
 }
 
-class SomeChannelPager extends ChannelPager {
+class grChannelPager extends ChannelPager {
     constructor(results, hasMore, context) {
         super(results, hasMore, context);
     }
     
     nextPage() {
-        return source.searchChannelContents(this.context.query, this.context.continuationToken);
+        return source.searchChannels(this.context.query, this.context.continuationToken);
     }
 }
 
-class SomeChannelVideoPager extends VideoPager {
+class grChannelVideoPager extends VideoPager {
     constructor(results, hasMore, context) {
         super(results, hasMore, context);
     }
